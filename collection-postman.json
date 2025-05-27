@@ -1,0 +1,207 @@
+{
+  "info": {
+    "_postman_id": "your-collection-id",
+    "name": "Chat-App",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "mutation Register($input: RegisterInput!) {\n  register(input: $input) {\n    _id\n    email\n    name\n  }\n}",
+                "variables": {
+                  "input": {
+                    "email": "test@example.com",
+                    "password": "password123",
+                    "name": "Test User"
+                  }
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/graphql",
+              "host": ["{{baseUrl}}"],
+              "path": ["graphql"]
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "mutation Login($input: LoginInput!) {\n  login(input: $input) {\n    accessToken\n    user {\n      _id\n      email\n      name\n    }\n  }\n}",
+                "variables": {
+                  "input": {
+                    "email": "test@example.com",
+                    "password": "password123"
+                  }
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/graphql",
+              "host": ["{{baseUrl}}"],
+              "path": ["graphql"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "ChatRoom",
+      "item": [
+        {
+          "name": "Create Chat Room",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "mutation CreateChatRoom($input: CreateChatRoomInput!) {\n  createChatRoom(input: $input) {\n    _id\n    name\n    description\n    isGroup\n    members {\n      _id\n      name\n      email\n    }\n    createdBy {\n      _id\n      name\n    }\n  }\n}",
+                "variables": {
+                  "input": {
+                    "name": "Test Group",
+                    "description": "Test group description",
+                    "isGroup": true,
+                    "memberIds": ["user-id-here"]
+                  }
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/graphql",
+              "host": ["{{baseUrl}}"],
+              "path": ["graphql"]
+            }
+          }
+        },
+        {
+          "name": "Get User Rooms",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "query ChatRooms {\n  chatRooms {\n    _id\n    name\n    description\n    isGroup\n    members {\n      _id\n      name\n      email\n    }\n    createdBy {\n      _id\n      name\n    }\n  }\n}"
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/graphql",
+              "host": ["{{baseUrl}}"],
+              "path": ["graphql"]
+            }
+          }
+        },
+        {
+          "name": "Get Single Room",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "query ChatRoom($id: String!) {\n  chatRoom(id: $id) {\n    _id\n    name\n    description\n    isGroup\n    members {\n      _id\n      name\n      email\n    }\n    createdBy {\n      _id\n      name\n    }\n  }\n}",
+                "variables": {
+                  "id": "room-id-here"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/graphql",
+              "host": ["{{baseUrl}}"],
+              "path": ["graphql"]
+            }
+          }
+        },
+        {
+          "name": "Add Member",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "mutation AddMember($roomId: String!, $userId: String!) {\n  addMember(roomId: $roomId, userId: $userId) {\n    _id\n    members {\n      _id\n      name\n    }\n  }\n}",
+                "variables": {
+                  "roomId": "room-id-here",
+                  "userId": "user-id-here"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/graphql",
+              "host": ["{{baseUrl}}"],
+              "path": ["graphql"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
