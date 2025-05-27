@@ -3,10 +3,10 @@
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>
-
+ 
 ## Description
 
-A NestJS backend for a fullstack chat application with the following features:
+practicing nestjs with websockets and graphql by implementing the following features;
 
 - User authentication (JWT with refresh tokens)
 - Real-time chat rooms (WebSocket support)
