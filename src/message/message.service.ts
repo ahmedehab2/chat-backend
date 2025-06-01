@@ -52,17 +52,14 @@ export class MessageService {
     if (!room.members.some((member) => member.toString() === userId)) {
       throw new ForbiddenException('You are not a member of this room');
     }
-    return await this.messageRepository.findAll(
-      { roomId },
-      {
-        queryOptions: {
-          limit: options?.limit,
-          skip: options?.skip,
-          sort: options?.sort || {
-            createdAt: -1,
-          },
+    return await this.messageRepository.findAll({ roomId }, {}, undefined, {
+      queryOptions: {
+        limit: options?.limit,
+        skip: options?.skip,
+        sort: options?.sort || {
+          createdAt: -1,
         },
       },
-    );
+    });
   }
 }
