@@ -22,10 +22,6 @@ export class ChatRoom extends AbstractEntity {
   @Prop({ default: false })
   isGroup: boolean;
 
-  @Field()
-  @Prop({ default: false })
-  isPrivate: boolean;
-
   @Field(() => [User])
   @Prop({
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: collections.USER }],
