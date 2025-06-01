@@ -15,6 +15,9 @@ export const Env = {
     storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
     privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
   },
+  redis: {
+    url: process.env.REDIS_URL,
+  },
 };
 
 export const checkEnv = () => {
