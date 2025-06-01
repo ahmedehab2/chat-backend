@@ -1,15 +1,16 @@
 import { JwtService } from '@nestjs/jwt';
+
 import {
   WebSocketGateway,
-  WebSocketServer,
   SubscribeMessage,
   OnGatewayConnection,
   OnGatewayDisconnect,
 } from '@nestjs/websockets';
-import { Server, Socket } from 'socket.io';
+import { Socket } from 'socket.io';
+import { MessageService } from 'src/message/message.service';
 
 type MessagePayload = {
-  chatId: string;
+  roomId: string;
   content: string;
   userId: string;
 };
@@ -18,9 +19,10 @@ type MessagePayload = {
 export class ChatRoomGateway
   implements OnGatewayConnection, OnGatewayDisconnect
 {
-  constructor(private readonly jwtService: JwtService) {}
-  @WebSocketServer()
-  server: Server;
+  constructor(
+    private readonly jwtService: JwtService,
+    private readonly messageService: MessageService,
+  ) {}
 
   getTokenFromCookie(cookie: string, key: string) {
     return (
@@ -46,19 +48,30 @@ export class ChatRoomGateway
     }
   }
 
-  async handleDisconnect(client: Socket) {
-    console.log(`Client disconnected: ${client.id}`);
-  }
+  async handleDisconnect(client: Socket) {}
 
   @SubscribeMessage('message')
-  handleMessage(client: Socket, message: MessagePayload) {
-    console.log(message);
-    client.broadcast.to(message.chatId).emit('message', message);
+  async handleMessage(client: Socket, message: MessagePayload) {
+    if (!message.roomId || !message.content || !message.userId) {
+      client.emit('error', {
+        error:
+          'Invalid message format. chatId, content, and userId are required.',
+      });
+      return;
+    }
+
+    await this.messageService.create(
+      {
+        roomId: message.roomId,
+        content: message.content,
+      },
+      message.userId,
+    );
+    client.broadcast.to(message.roomId).emit('message', message);
   }
 
   @SubscribeMessage('joinRoom')
   handleJoinRoom(client: Socket, room: string) {
     client.join(room);
-    console.log(`Client ${client.id} joined room ${room}`);
   }
 }
