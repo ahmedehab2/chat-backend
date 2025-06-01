@@ -9,6 +9,8 @@ import { collections } from 'src/common/collection-names';
 @ObjectType()
 @Schema({
   collection: collections.MESSAGE,
+  timestamps: true,
+  versionKey: false,
 })
 export class Message extends AbstractEntity {
   @Field()
