@@ -1,3 +1,5 @@
+import { errMessages } from '../errors/err-msgs';
+
 export const Env = {
   db: {
     connectionString: process.env.DB_CONNECTIONSTRING,
@@ -24,7 +26,7 @@ export const checkEnv = () => {
   const envs = Object.keys(Env);
   envs.forEach((env) => {
     if (!Env[env]) {
-      throw new Error(`Environment variable ${env} is not set`);
+      throw new Error(`${errMessages.ENV_VAR_NOT_SET} ${env}`);
     }
   });
 };

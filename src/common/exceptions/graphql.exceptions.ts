@@ -7,6 +7,7 @@ import {
 import { GqlExceptionFilter, GqlArgumentsHost } from '@nestjs/graphql';
 
 import { MongoError } from 'mongodb';
+import { errMessages } from '../errors/err-msgs';
 
 @Catch()
 export class GraphQLExceptionFilter implements GqlExceptionFilter {
@@ -20,7 +21,9 @@ export class GraphQLExceptionFilter implements GqlExceptionFilter {
     });
     if (exception instanceof MongoError) {
       if (exception.code === 11000) {
-        throw new BadRequestException('Resource already exists');
+        throw new BadRequestException(
+          errMessages.RESOURCE_ALREADY_EXISTS_GRAPHQL,
+        );
       } else {
         throw new BadRequestException(exception.message);
       }

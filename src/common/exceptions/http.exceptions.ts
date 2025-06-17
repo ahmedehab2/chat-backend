@@ -8,6 +8,7 @@ import {
 import { Request, Response } from 'express';
 import { getReasonPhrase } from 'http-status-codes';
 import { MongoError } from 'mongodb';
+import { errMessages } from '../errors/err-msgs';
 
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
@@ -19,7 +20,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     const request = ctx.getRequest<Request>();
     this.logger.log(exception);
     let status = 500;
-    let message = 'Internal server error';
+    let message = errMessages.INTERNAL_SERVER_ERROR;
 
     if (exception instanceof HttpException) {
       status = exception.getStatus();
@@ -33,7 +34,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     } else if (exception instanceof MongoError) {
       if (exception.code === 11000) {
         status = 409;
-        message = 'Resource already exists.';
+        message = errMessages.RESOURCE_ALREADY_EXISTS;
       }
     } else if (exception instanceof Error) {
       message = exception.message;

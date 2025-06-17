@@ -1,5 +1,4 @@
 import { JwtService } from '@nestjs/jwt';
-
 import {
   WebSocketGateway,
   SubscribeMessage,
@@ -8,6 +7,7 @@ import {
 } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
 import { MessageService } from 'src/message/message.service';
+import { errMessages } from 'src/common/errors/err-msgs';
 
 type MessagePayload = {
   roomId: string;
@@ -54,8 +54,7 @@ export class ChatRoomGateway
   async handleMessage(client: Socket, message: MessagePayload) {
     if (!message.roomId || !message.content || !message.userId) {
       client.emit('error', {
-        error:
-          'Invalid message format. chatId, content, and userId are required.',
+        error: errMessages.INVALID_MESSAGE_FORMAT,
       });
       return;
     }
@@ -74,4 +73,5 @@ export class ChatRoomGateway
   handleJoinRoom(client: Socket, room: string) {
     client.join(room);
   }
+}
 }
