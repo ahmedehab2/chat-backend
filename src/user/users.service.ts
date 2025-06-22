@@ -23,11 +23,11 @@ export class UsersService {
     });
   }
 
-  findAll() {
+  async findAll() {
     return this.usersRepository.findAll();
   }
 
-  findOne(id: string): Promise<User | null> {
+  async findOne(id: string): Promise<User | null> {
     return this.usersRepository.findOne({
       _id: new mongoose.Types.ObjectId(id),
     });
@@ -84,6 +84,13 @@ export class UsersService {
           },
         },
       ],
+    });
+  }
+
+  async UpdateOnlineStatus(userId: string, isOnline: boolean) {
+    await this.usersRepository.findByIdAndUpdate(userId, {
+      isOnline,
+      ...(isOnline && { lastSeen: new Date() }),
     });
   }
 }
