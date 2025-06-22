@@ -19,4 +19,7 @@ export const errMessages: Errors = {
   INVALID_MESSAGE_FORMAT:
     'Invalid message format. chatId, content, and userId are required.',
   ENV_VAR_NOT_SET: 'Environment variable is not set',
+  INVALID_ROOM: 'Invalid room identifier',
+  MESSAGE_TOO_LONG: 'Message exceeds maximum length',
+  INTERNAL_ERROR: 'An internal error occurred',
 };

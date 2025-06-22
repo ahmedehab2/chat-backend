@@ -7,71 +7,52 @@ import {
 } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
 import { MessageService } from 'src/message/message.service';
-import { errMessages } from 'src/common/errors/err-msgs';
-
-type MessagePayload = {
-  roomId: string;
-  content: string;
-  userId: string;
-};
+import { UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
+import { WsAuthGuard } from 'src/auth/guards/ws-auth.guard';
+import { UsersService } from 'src/user/users.service';
+import { extractUserFromSocket } from 'src/auth/utils/ws-auth.util';
+import { MessageDto } from './dto/message.dto';
 
 @WebSocketGateway({ cors: true })
 export class ChatRoomGateway
   implements OnGatewayConnection, OnGatewayDisconnect
 {
   constructor(
-    private readonly jwtService: JwtService,
     private readonly messageService: MessageService,
+    private readonly usersService: UsersService,
+    private readonly jwtService: JwtService,
   ) {}
 
-  getTokenFromCookie(cookie: string, key: string) {
-    return (
-      cookie
-        ?.split(';')
-        .map((c) => c.trim())
-        .find((c) => c.startsWith(`${key}=`))
-        ?.split('=')[1] || null
-    );
-  }
   async handleConnection(client: Socket) {
-    const cookie = client.handshake.headers.cookie;
-    const token = this.getTokenFromCookie(cookie, 'accessToken');
-    if (!token) {
-      client.disconnect();
-      return;
-    }
     try {
-      this.jwtService.verify(token);
-    } catch (e) {
+      client.user = extractUserFromSocket(client, this.jwtService);
+      this.usersService.UpdateOnlineStatus(client.user?._id, true);
+    } catch (err) {
       client.disconnect();
-      return;
     }
   }
 
-  async handleDisconnect(client: Socket) {}
+  async handleDisconnect(client: Socket) {
+    this.usersService.UpdateOnlineStatus(client.user?._id, false);
+  }
 
+  @UseGuards(WsAuthGuard)
+  @UsePipes(new ValidationPipe())
   @SubscribeMessage('message')
-  async handleMessage(client: Socket, message: MessagePayload) {
-    if (!message.roomId || !message.content || !message.userId) {
-      client.emit('error', {
-        error: errMessages.INVALID_MESSAGE_FORMAT,
-      });
-      return;
-    }
-
+  async handleMessage(client: Socket, message: MessageDto) {
     await this.messageService.create(
       {
         roomId: message.roomId,
         content: message.content,
       },
-      message.userId,
+      client.user?._id,
     );
     client.broadcast.to(message.roomId).emit('message', message);
   }
 
-  @SubscribeMessage('joinRoom')
+  @UseGuards(WsAuthGuard)
+  @SubscribeMessage('join-room')
   handleJoinRoom(client: Socket, room: string) {
     client.join(room);
   }
-}
 }
